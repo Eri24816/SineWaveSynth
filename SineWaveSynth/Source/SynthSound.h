@@ -1,6 +1,13 @@
+/*
+  ==============================================================================
+    SynthSound.h
+    Created: 24 Jul 2021 12:43:06pm
+    Author:  tuiji da
+  ==============================================================================
+*/
+
 #pragma once
 
-#include <JuceHeader.h>
 class SynthSound : public juce::SynthesiserSound
 {
 

@@ -1,6 +1,13 @@
-#include <JuceHeader.h>
+/*
+  ==============================================================================
+    SynthVoice.cpp
+    Created: 24 Jul 2021 12:43:29pm
+    Author:  tuiji da
+  ==============================================================================
+*/
+
 #include "SynthVoice.h"
-#include "SynthSound.h"
+
 bool SynthVoice::canPlaySound(juce::SynthesiserSound* sound)
 {
     return dynamic_cast<SynthSound*>(sound) != nullptr;
@@ -12,15 +19,16 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
     frequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
     currentAngle = 0.f;
     angleIncrement = frequency / getSampleRate() * juce::MathConstants<float>::twoPi;
-    tailOff = 0.0;
+    tailOff = 1.0;
+    sustain = true;
 }
 
 void SynthVoice::stopNote(float velocity, bool allowTailOff)
 {
+    sustain = false;
     if (allowTailOff)
     {
-        if (tailOff == 0.0)
-            tailOff = 1.0;
+        
     }
     else
     {
@@ -30,41 +38,36 @@ void SynthVoice::stopNote(float velocity, bool allowTailOff)
     }
 }
 
+void SynthVoice::pitchWheelMoved(int newPitchWheelValue)
+{
+    // handle pitch wheel moved midi event
+}
+
+void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue)
+{
+    // handle midi control change
+}
+
 void SynthVoice::renderNextBlock(juce::AudioBuffer <float>& outputBuffer, int startSample, int numSamples)
 {
-    if (tailOff > 0.0)
+
+    for (int i = startSample; i < (startSample + numSamples); i++)
     {
-        for (int i = startSample; i < (startSample + numSamples); i++)
-        {
-            float value = std::sin(currentAngle) * level * tailOff;
-            outputBuffer.addSample(0, i, value);
-            outputBuffer.addSample(1, i, value);
+        float value = std::sin(currentAngle) * level * tailOff;
+        outputBuffer.addSample(0, i, value);
+        outputBuffer.addSample(1, i, value);
 
-            currentAngle += angleIncrement;
-            tailOff *= 0.99;
-
-            if (tailOff <= 0.05)
-            {
-                clearCurrentNote();
-                angleIncrement = 0.0;
-                level = 0.0;
-                break;
-            }
-        }
+        currentAngle += angleIncrement;
+        if (sustain)
+            tailOff *= 0.9999;
+        else
+            tailOff *= 0.998;
 
     }
-    else
-    {
-        for (int i = startSample; i < (startSample + numSamples); i++)
-        {
-            float value = std::sin(currentAngle) * level;
-            outputBuffer.addSample(0, i, value);
-            outputBuffer.addSample(1, i, value);
 
-            currentAngle += angleIncrement;
-        }
-    }
 }
-void SynthVoice::pitchWheelMoved(int newPitchWheelValue) {}
-void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue) {}
-void SynthVoice::setLevel(float newLevel) {}
+
+void SynthVoice::setLevel(float newLevel)
+{
+    level = newLevel;
+}

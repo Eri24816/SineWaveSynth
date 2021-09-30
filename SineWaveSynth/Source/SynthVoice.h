@@ -1,4 +1,7 @@
+#pragma once
 #include <JuceHeader.h>
+#include "SynthSound.h"
+
 class SynthVoice : public juce::SynthesiserVoice
 {
 public:
@@ -23,4 +26,5 @@ private:
     float currentAngle;
     float angleIncrement;
     float tailOff;
+    bool sustain;
 };

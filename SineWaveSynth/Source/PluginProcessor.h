@@ -1,24 +1,24 @@
-/*
+﻿/*
   ==============================================================================
-
     This file contains the basic framework code for a JUCE plugin processor.
-
   ==============================================================================
 */
 
 #pragma once
 
 #include <JuceHeader.h>
+#include "SynthSound.h"
+#include "SynthVoice.h"
 
 //==============================================================================
 /**
 */
-class SineWaveSynthAudioProcessor  : public juce::AudioProcessor
+class SineWaveSynthesizerAudioProcessor : public juce::AudioProcessor
 {
 public:
     //==============================================================================
-    SineWaveSynthAudioProcessor();
-    ~SineWaveSynthAudioProcessor() override;
+    SineWaveSynthesizerAudioProcessor();
+    ~SineWaveSynthesizerAudioProcessor() override;
 
     //==============================================================================
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
@@ -60,5 +60,5 @@ private:
 
     double lastSampleRate;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SineWaveSynthAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SineWaveSynthesizerAudioProcessor)
 };

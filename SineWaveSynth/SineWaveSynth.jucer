@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="P1IBGf" name="SineWaveSynth" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
+              pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn">
   <MAINGROUP id="QMHJPK" name="SineWaveSynth">
     <GROUP id="{9526B6A5-82A7-57A0-5113-76974FFE119A}" name="Source">
       <FILE id="Iej8o2" name="SynthSound.h" compile="0" resource="0" file="Source/SynthSound.h"/>
