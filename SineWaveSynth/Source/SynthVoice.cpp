@@ -7,6 +7,7 @@
 */
 
 #include "SynthVoice.h"
+#include<math.h>
 
 bool SynthVoice::canPlaySound(juce::SynthesiserSound* sound)
 {
@@ -21,6 +22,9 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
     angleIncrement = frequency / getSampleRate() * juce::MathConstants<float>::twoPi;
     tailOff = 1.0;
     sustain = true;
+    envelopePhase = A;
+    timeInEnvPhase = 0;
+    timeStep = 1 / getSampleRate();
 }
 
 void SynthVoice::stopNote(float velocity, bool allowTailOff)
@@ -28,7 +32,7 @@ void SynthVoice::stopNote(float velocity, bool allowTailOff)
     sustain = false;
     if (allowTailOff)
     {
-        
+        envelopePhase = R;
     }
     else
     {
@@ -53,21 +57,53 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer <float>& outputBuffer, int st
 
     for (int i = startSample; i < (startSample + numSamples); i++)
     {
-        float value = std::sin(currentAngle) * level * tailOff;
+        
+        switch (envelopePhase)
+        {
+        case A:
+            if (timeInEnvPhase >= aTime) { envelopePhase = D; timeInEnvPhase = 0; }
+            else {
+                intensity = aVel* (timeInEnvPhase / aTime);  
+            }
+            break;
+        case D:
+            if (timeInEnvPhase >= dTime) { envelopePhase = S; timeInEnvPhase = 0; }
+            else {
+                intensity = aVel - (aVel - dVel) * (timeInEnvPhase / dTime);
+            }
+            break;
+        case S:
+            intensity *= sDecay;
+            break;
+        case R:
+            intensity *= rDecay;
+            break;
+        default:
+            break;
+        
+        }
+        float value = std::sin(currentAngle) * level * intensity;
         outputBuffer.addSample(0, i, value);
         outputBuffer.addSample(1, i, value);
 
         currentAngle += angleIncrement;
-        if (sustain)
-            tailOff *= 0.9999;
-        else
-            tailOff *= 0.998;
-
+        timeInEnvPhase += timeStep;
+       
     }
-
 }
 
-void SynthVoice::setLevel(float newLevel)
+void SynthVoice::setParams(juce::AudioProcessorValueTreeState* tree)
 {
-    level = newLevel;
+    level = tree->getRawParameterValue("level")->load();
+    aTime = tree->getRawParameterValue("aTime")->load()+0.002f;
+    dTime = tree->getRawParameterValue("dTime")->load()+0.002f;
+    float sTime = tree->getRawParameterValue("sTime")->load();
+    sDecay = powf(2, -1.0f / (sTime*getSampleRate()));
+    float rTime = tree->getRawParameterValue("rTime")->load();
+    rDecay = powf(2, -1.0f / (rTime * getSampleRate()));
+    aVel = tree->getRawParameterValue("aVel")->load();
+    dVel = tree->getRawParameterValue("dVel")->load();
+    sVel = tree->getRawParameterValue("sVel")->load();
+    rVel = tree->getRawParameterValue("rVel")->load();
+    
 }

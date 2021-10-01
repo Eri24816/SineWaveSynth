@@ -12,30 +12,17 @@
 //==============================================================================
 /**
 */
-class RotarySlider {
+class RotarySlider : public juce :: Slider{
 private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attachment;
+    juce::Label nameLabel;
 public:
     RotarySlider(SineWaveSynthesizerAudioProcessor& audioProcessor, char* name);
     RotarySlider() {};
-    juce::Slider slider;
+    void resized() override;
 };
 
-RotarySlider::RotarySlider(SineWaveSynthesizerAudioProcessor& audioProcessor, char* varName) {
-    slider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
 
-    slider.setTextBoxStyle(juce::Slider::TextBoxLeft,
-        true,
-        slider.getTextBoxWidth(),
-        slider.getTextBoxHeight());
-
-    slider.setRotaryParameters(-2.5 + 6.283, 2.5 + 6.283, true);
-    slider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
-
-
-    attachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.tree, varName, slider));
-    slider.setValue(0.1);
-};
 
 
 class SineWaveSynthesizerAudioProcessorEditor : public juce::AudioProcessorEditor
@@ -53,8 +40,9 @@ private:
     // access the processor object that created it.
     SineWaveSynthesizerAudioProcessor& audioProcessor;
 
-    std::vector<RotarySlider*> RotarySliders;
-    //RotarySlider *RotarySliders[8];
+    std::vector<RotarySlider*> rotarySliders;
+
+    juce::Label debugLabel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SineWaveSynthesizerAudioProcessorEditor)
 };

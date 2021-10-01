@@ -7,6 +7,16 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+std::unique_ptr<juce::AudioParameterFloat> SliderParameter(char* id,char* name,float init = 0.5f,float min = 0, float max = 1, float step = 0.05) {
+    return std::make_unique<juce::AudioParameterFloat>(id,
+        name,
+        juce::NormalisableRange<float>(min,max,step), init,
+        juce::String(),
+        juce::AudioProcessorParameter::genericParameter,
+        [](float value, int) {return juce::String(value); },
+        [](juce::String text) { return text.getFloatValue(); });
+}
+
 //==============================================================================
 SineWaveSynthesizerAudioProcessor::SineWaveSynthesizerAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -19,13 +29,18 @@ SineWaveSynthesizerAudioProcessor::SineWaveSynthesizerAudioProcessor()
 #endif
     ),
     tree(*this, nullptr, "PARAM",
-        std::make_unique<juce::AudioParameterFloat>("level",
-            "Level",
-            juce::NormalisableRange<float>(0.0f, 1.0f, 0.1f), 0.5f,
-            juce::String(),
-            juce::AudioProcessorParameter::genericParameter,
-            [](float value, int) {return juce::String(value); },
-            [](juce::String text) { return text.getFloatValue(); }))
+        {
+        SliderParameter("level","Level"),
+        SliderParameter("aTime","aTime",0),
+        SliderParameter("dTime","dTime",0.1),
+        SliderParameter("sTime","sTime"),
+        SliderParameter("rTime","rTime",0.1),
+        SliderParameter("aVel","aVel",0.8),
+        SliderParameter("dVel","dVel"),
+        SliderParameter("sVel","sVel"),
+        SliderParameter("rVel","rVel"),
+        }
+    )
 #endif
 {
     mySynth.clearSounds();
@@ -157,7 +172,7 @@ void SineWaveSynthesizerAudioProcessor::processBlock(juce::AudioBuffer<float>& b
     for (int i = 0; i < mySynth.getNumVoices(); i++)
     {
         auto* myVoice = dynamic_cast<SynthVoice*>(mySynth.getVoice(i));
-        myVoice->setLevel(tree.getRawParameterValue("level")->load());
+        myVoice->setParams(&tree);
     }
     mySynth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 

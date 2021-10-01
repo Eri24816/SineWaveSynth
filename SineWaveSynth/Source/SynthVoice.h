@@ -17,14 +17,20 @@ public:
 
     void renderNextBlock(juce::AudioBuffer <float>& outputBuffer, int startSample, int numSamples) override;
 
-    void setLevel(float newLevel);
+    void setParams(juce::AudioProcessorValueTreeState* tree);
 
 private:
     float level;
     float frequency;
     int noteMidiNumber;
-    float currentAngle;
     float angleIncrement;
     float tailOff;
     bool sustain;
+    float aTime, dTime, sDecay, rDecay, aVel, dVel, sVel, rVel;
+    float timeStep;
+
+    enum EnvelopePhase { A, D, S, R } envelopePhase;
+    float timeInEnvPhase;
+    float intensity;
+    float currentAngle;
 };
