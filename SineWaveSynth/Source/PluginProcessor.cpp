@@ -39,6 +39,7 @@ SineWaveSynthesizerAudioProcessor::SineWaveSynthesizerAudioProcessor()
         SliderParameter("dVel","dVel"),
         SliderParameter("sVel","sVel"),
         SliderParameter("rVel","rVel"),
+        std::make_unique < juce::AudioParameterChoice>("waveform","waveform",juce::StringArray({ "Sine","Square","Triangle","Saw" }),0)
         }
     )
 #endif

@@ -47,9 +47,10 @@ SineWaveSynthesizerAudioProcessorEditor::SineWaveSynthesizerAudioProcessorEditor
 
     waveFormComboBox.addItemList({ "Sine","Square","Triangle","Saw" },1);
     waveFormComboBox.setSelectedId(1);
+    waveFormComboBoxAttachment.reset(new juce::AudioProcessorValueTreeState::ComboBoxAttachment(audioProcessor.tree, "waveform", waveFormComboBox));
     ADD_MANY(main, 
         new RotarySlider(audioProcessor, "level"),
-        &waveFormComboBox
+        //&waveFormComboBox
     );
     ADD_MANY(adsrTime,
         new RotarySlider(audioProcessor, "aTime"),
@@ -64,6 +65,7 @@ SineWaveSynthesizerAudioProcessorEditor::SineWaveSynthesizerAudioProcessorEditor
         new RotarySlider(audioProcessor, "rVel"),
         );
     
+    addAndMakeVisible(waveFormComboBox);
     for (auto &it : main) {
         addAndMakeVisible(it);
     }
@@ -81,7 +83,6 @@ SineWaveSynthesizerAudioProcessorEditor::~SineWaveSynthesizerAudioProcessorEdito
 {
     for (auto& it : main) {
         delete it;
-        break;
     }
     for (auto& it : adsrTime) {
         delete it;
@@ -125,6 +126,7 @@ void SineWaveSynthesizerAudioProcessorEditor::resized()
     for (auto& it :  main) {
         fbMain.items.add(juce::FlexItem(*it).withMinWidth(70.0f).withMinHeight(90.0f));
     }
+    fbMain.items.add(juce::FlexItem(waveFormComboBox).withMinWidth(150.0f).withMinHeight(70.0f));
     fbMain.performLayout(area.toFloat());
 
     juce::FlexBox fbAdsrTime;

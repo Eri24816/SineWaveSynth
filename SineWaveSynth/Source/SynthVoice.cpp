@@ -9,6 +9,10 @@
 #include "SynthVoice.h"
 #include<math.h>
 
+#define PI juce::MathConstants<float>::pi
+#define TWO_PI juce::MathConstants<float>::twoPi
+
+
 bool SynthVoice::canPlaySound(juce::SynthesiserSound* sound)
 {
     return dynamic_cast<SynthSound*>(sound) != nullptr;
@@ -82,7 +86,17 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer <float>& outputBuffer, int st
             break;
         
         }
-        float value = std::sin(currentAngle) * level * intensity;
+        float value = 0;
+        // sine
+        if (waveform == 0)value = std::sin(currentAngle);
+        // square
+        else if (waveform == 1) value = ((int)(currentAngle / PI)) % 2 ? 1 : -1;
+        // tri
+        else if (waveform == 2) value = abs(fmod(currentAngle / PI,2)-1)+0.5;
+        // saw
+        else if (waveform == 3) value = fmod( currentAngle / PI,2) - 1;
+
+        value *= level * intensity;
         outputBuffer.addSample(0, i, value);
         outputBuffer.addSample(1, i, value);
 
@@ -105,5 +119,6 @@ void SynthVoice::setParams(juce::AudioProcessorValueTreeState* tree)
     dVel = tree->getRawParameterValue("dVel")->load();
     sVel = tree->getRawParameterValue("sVel")->load();
     rVel = tree->getRawParameterValue("rVel")->load();
-    
+    waveform = tree->getParameterAsValue("waveform").getValue();
+    //DBG(waveform);
 }

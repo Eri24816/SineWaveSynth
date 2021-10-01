@@ -27,6 +27,7 @@ private:
     float tailOff;
     bool sustain;
     float aTime, dTime, sDecay, rDecay, aVel, dVel, sVel, rVel;
+    int waveform;
     float timeStep;
 
     enum EnvelopePhase { A, D, S, R } envelopePhase;

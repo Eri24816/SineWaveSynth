@@ -44,6 +44,7 @@ private:
 
     juce::Label debugLabel;
     juce::ComboBox waveFormComboBox;
+    std::unique_ptr <juce::AudioProcessorValueTreeState::ComboBoxAttachment> waveFormComboBoxAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SineWaveSynthesizerAudioProcessorEditor)
 };
