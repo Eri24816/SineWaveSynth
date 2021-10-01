@@ -7,6 +7,8 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+#define ADD_MANY(vector,...) vector.insert(vector.end(),{__VA_ARGS__})
+
 //==============================================================================
 RotarySlider::RotarySlider(SineWaveSynthesizerAudioProcessor& audioProcessor, char* varName):nameLabel("nameLabel",varName) {
     setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
@@ -38,22 +40,37 @@ void RotarySlider::resized() {
 
 
 SineWaveSynthesizerAudioProcessorEditor::SineWaveSynthesizerAudioProcessorEditor(SineWaveSynthesizerAudioProcessor& p)
-    : AudioProcessorEditor(&p), audioProcessor(p), rotarySliders()
+    : AudioProcessorEditor(&p), audioProcessor(p),waveFormComboBox("wave form")
 { 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    rotarySliders.insert(rotarySliders.end(),{ new RotarySlider(audioProcessor, "level"),
+
+    waveFormComboBox.addItemList({ "Sine","Square","Triangle","Saw" },1);
+    waveFormComboBox.setSelectedId(1);
+    ADD_MANY(main, 
+        new RotarySlider(audioProcessor, "level"),
+        &waveFormComboBox
+    );
+    ADD_MANY(adsrTime,
         new RotarySlider(audioProcessor, "aTime"),
-        new RotarySlider(audioProcessor, "dTime"), 
-        new RotarySlider(audioProcessor, "sTime"), 
-        new RotarySlider(audioProcessor, "rTime"), 
-        new RotarySlider(audioProcessor, "aVel"), 
-        new RotarySlider(audioProcessor, "dVel"), 
-        new RotarySlider(audioProcessor, "sVel"), 
-        new RotarySlider(audioProcessor, "rVel"), });
+        new RotarySlider(audioProcessor, "dTime"),
+        new RotarySlider(audioProcessor, "sTime"),
+        new RotarySlider(audioProcessor, "rTime"),
+        );
+    ADD_MANY(adsrVel,
+        new RotarySlider(audioProcessor, "aVel"),
+        new RotarySlider(audioProcessor, "dVel"),
+        new RotarySlider(audioProcessor, "sVel"),
+        new RotarySlider(audioProcessor, "rVel"),
+        );
     
-    
-    for (auto &it : rotarySliders) {
+    for (auto &it : main) {
+        addAndMakeVisible(it);
+    }
+    for (auto& it : adsrTime) {
+        addAndMakeVisible(it);
+    }
+    for (auto& it : adsrVel) {
         addAndMakeVisible(it);
     }
     setSize(400, 300);
@@ -62,7 +79,14 @@ SineWaveSynthesizerAudioProcessorEditor::SineWaveSynthesizerAudioProcessorEditor
 
 SineWaveSynthesizerAudioProcessorEditor::~SineWaveSynthesizerAudioProcessorEditor()
 {
-    for (auto& it : rotarySliders) {
+    for (auto& it : main) {
+        delete it;
+        break;
+    }
+    for (auto& it : adsrTime) {
+        delete it;
+    }
+    for (auto& it : adsrVel) {
         delete it;
     }
 }
@@ -75,7 +99,7 @@ void SineWaveSynthesizerAudioProcessorEditor::paint(juce::Graphics& g)
     
     g.setColour(juce::Colours::white);
 
-    g.drawFittedText("Level", getBounds().getProportion(juce::Rectangle<float>(0, 0, 1, 0.2)), juce::Justification::centred, 1);
+    //g.drawFittedText("Level", getBounds().getProportion(juce::Rectangle<float>(0, 0, 1, 0.2)), juce::Justification::centred, 1);
 
 
 }
@@ -93,13 +117,46 @@ void SineWaveSynthesizerAudioProcessorEditor::resized()
         it->slider.setBounds(x, y, sliderWidth, sliderHeight);
     }
     */
+    juce::FlexBox fbMain;
+    fbMain.flexWrap = juce::FlexBox::Wrap::wrap;
+    fbMain.justifyContent = juce::FlexBox::JustifyContent::center;
+    fbMain.alignContent = juce::FlexBox::AlignContent::center;
+
+    for (auto& it :  main) {
+        fbMain.items.add(juce::FlexItem(*it).withMinWidth(70.0f).withMinHeight(90.0f));
+    }
+    fbMain.performLayout(area.toFloat());
+
+    juce::FlexBox fbAdsrTime;
+    fbAdsrTime.flexWrap = juce::FlexBox::Wrap::wrap;
+    fbAdsrTime.justifyContent = juce::FlexBox::JustifyContent::center;
+    fbAdsrTime.alignContent = juce::FlexBox::AlignContent::center;
+
+    for (auto& it : adsrTime) {
+        fbAdsrTime.items.add(juce::FlexItem(*it).withMinWidth(70.0f).withMinHeight(90.0f));
+    }
+    fbAdsrTime.performLayout(area.toFloat());
+
+    juce::FlexBox fbAdsrVel;
+    fbAdsrVel.flexWrap = juce::FlexBox::Wrap::wrap;
+    fbAdsrVel.justifyContent = juce::FlexBox::JustifyContent::center;
+    fbAdsrVel.alignContent = juce::FlexBox::AlignContent::center;
+
+    for (auto& it : adsrVel) {
+        fbAdsrVel.items.add(juce::FlexItem(*it).withMinWidth(70.0f).withMinHeight(90.0f));
+    }
+    fbAdsrVel.performLayout(area.toFloat());
+
+
+
     juce::FlexBox fb;                                               
     fb.flexWrap = juce::FlexBox::Wrap::wrap;                        
     fb.justifyContent = juce::FlexBox::JustifyContent::center;      
     fb.alignContent = juce::FlexBox::AlignContent::center;          
     
-    for (auto& it : rotarySliders) {
-        fb.items.add(juce::FlexItem(*it).withMinWidth(70.0f).withMinHeight(90.0f));;
-    }
+    fb.items.addArray({ 
+        juce::FlexItem((float)getWidth() , (float)getHeight()*0.333,fbMain),
+        juce::FlexItem((float)getWidth() , (float)getHeight()*0.333,fbAdsrTime) ,
+        juce::FlexItem((float)getWidth() , (float)getHeight()*0.333,fbAdsrVel) });
     fb.performLayout(area.toFloat());
 }

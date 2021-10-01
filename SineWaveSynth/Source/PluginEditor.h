@@ -40,9 +40,10 @@ private:
     // access the processor object that created it.
     SineWaveSynthesizerAudioProcessor& audioProcessor;
 
-    std::vector<RotarySlider*> rotarySliders;
+    std::vector<juce::Component*> main,adsrTime,adsrVel;
 
     juce::Label debugLabel;
+    juce::ComboBox waveFormComboBox;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SineWaveSynthesizerAudioProcessorEditor)
 };
