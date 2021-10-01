@@ -22,18 +22,14 @@ RotarySlider::RotarySlider(SineWaveSynthesizerAudioProcessor& audioProcessor, ch
     setRotaryParameters(-2.5 + 6.283, 2.5 + 6.283, true);
     setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
 
-
     attachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.tree, varName,*this));
-    //setValue(0.1);
 
     nameLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(nameLabel);
-    
 };
 
 void RotarySlider::resized() {
     juce::Slider::resized();
-    //setBounds();
     nameLabel.setBounds(getLocalBounds().getProportion(juce::Rectangle<float>(0,.8, 1, .2)));
 }
 
@@ -50,7 +46,6 @@ SineWaveSynthesizerAudioProcessorEditor::SineWaveSynthesizerAudioProcessorEditor
     waveFormComboBoxAttachment.reset(new juce::AudioProcessorValueTreeState::ComboBoxAttachment(audioProcessor.tree, "waveform", waveFormComboBox));
     ADD_MANY(main, 
         new RotarySlider(audioProcessor, "level"),
-        //&waveFormComboBox
     );
     ADD_MANY(adsrTime,
         new RotarySlider(audioProcessor, "aTime"),
@@ -81,6 +76,7 @@ SineWaveSynthesizerAudioProcessorEditor::SineWaveSynthesizerAudioProcessorEditor
 
 SineWaveSynthesizerAudioProcessorEditor::~SineWaveSynthesizerAudioProcessorEditor()
 {
+    // Delete it, delete it, delete it.
     for (auto& it : main) {
         delete it;
     }
@@ -97,12 +93,6 @@ void SineWaveSynthesizerAudioProcessorEditor::paint(juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
-    
-    g.setColour(juce::Colours::white);
-
-    //g.drawFittedText("Level", getBounds().getProportion(juce::Rectangle<float>(0, 0, 1, 0.2)), juce::Justification::centred, 1);
-
-
 }
 
 void SineWaveSynthesizerAudioProcessorEditor::resized()
@@ -113,11 +103,6 @@ void SineWaveSynthesizerAudioProcessorEditor::resized()
     int x = 100;
     int y = 100;
 
-    /*
-    for (auto& it : RotarySliders) {
-        it->slider.setBounds(x, y, sliderWidth, sliderHeight);
-    }
-    */
     juce::FlexBox fbMain;
     fbMain.flexWrap = juce::FlexBox::Wrap::wrap;
     fbMain.justifyContent = juce::FlexBox::JustifyContent::center;
